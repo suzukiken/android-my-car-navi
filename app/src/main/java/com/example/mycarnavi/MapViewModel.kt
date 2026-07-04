@@ -17,19 +17,19 @@ class MapViewModel : ViewModel() {
     val camera: StateFlow<CameraState> = _camera
 
     fun moveWest() {
-        move(-100.0, 0.0)
+        move(-200.0, 0.0)
     }
 
     fun moveEast() {
-        move(100.0, 0.0)
+        move(200.0, 0.0)
     }
 
     fun moveNorth() {
-        move(0.0, 100.0)
+        move(0.0, 200.0)
     }
 
     fun moveSouth() {
-        move(0.0, -100.0)
+        move(0.0, -200.0)
     }
 
     fun zoomIn() {
@@ -48,9 +48,13 @@ class MapViewModel : ViewModel() {
 
         val camera = _camera.value
 
-        val dLat = northMeters / 111320.0
+        // ズームが1段階下がると表示範囲が約2倍になるため、
+        // 移動量も2倍にして画面上の移動量を一定に保つ（zoom=15で基準の200m）
+        val scale = Math.pow(2.0, (15.0 - camera.zoom))
 
-        val dLon = eastMeters /
+        val dLat = northMeters * scale / 111320.0
+
+        val dLon = eastMeters * scale /
                 (111320.0 * kotlin.math.cos(Math.toRadians(camera.latitude)))
 
         _camera.value = camera.copy(
