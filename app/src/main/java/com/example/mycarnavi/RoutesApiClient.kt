@@ -31,6 +31,8 @@ class RoutesApiClient(private val apiKey: String) {
             put("origin", waypoint(originLatitude, originLongitude))
             put("destination", waypoint(destinationLatitude, destinationLongitude))
             put("travelMode", "DRIVE")
+            // 現在の交通状況（渋滞）を考慮した所要時間を返す
+            put("routingPreference", "TRAFFIC_AWARE")
         }
 
         val request = Request.Builder()

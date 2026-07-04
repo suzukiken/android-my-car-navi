@@ -2,10 +2,16 @@ package com.example.mycarnavi
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -15,6 +21,8 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun MapScreen(
@@ -56,7 +64,8 @@ fun MapScreen(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(
-                isMyLocationEnabled = locationPermissionGranted
+                isMyLocationEnabled = locationPermissionGranted,
+                isTrafficEnabled = true
             ),
             onMapLoaded = {
                 mapLoaded = true
@@ -84,13 +93,63 @@ fun MapScreen(
         Text(
             text = "Zoom ${camera.zoom}\nLat ${camera.latitude}\nLng ${camera.longitude}" +
                     (destination?.let { "\nDest ${it.latitude}, ${it.longitude}" } ?: "") +
-                    (currentLocation?.let { "\nHere ${it.latitude}, ${it.longitude}" } ?: "") +
-                    (route?.let {
-                        "\nRoute %.1f km / %d min".format(
-                            it.distanceMeters / 1000.0,
-                            it.durationSeconds / 60
-                        )
-                    } ?: "")
+                    (currentLocation?.let { "\nHere ${it.latitude}, ${it.longitude}" } ?: "")
         )
+
+        route?.let { r ->
+            RouteInfoPanel(
+                route = r,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun RouteInfoPanel(
+    route: RouteInfo,
+    modifier: Modifier = Modifier
+) {
+    // ルート取得時点を基準にした到着予想時刻
+    val arrivalTime = remember(route) {
+        LocalTime.now()
+            .plusSeconds(route.durationSeconds)
+            .format(DateTimeFormatter.ofPattern("HH:mm"))
+    }
+
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 6.dp
+    ) {
+        Text(
+            text = "$arrivalTime 着 ・ " +
+                    "${formatDuration(route.durationSeconds)} ・ " +
+                    formatDistance(route.distanceMeters),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        )
+    }
+}
+
+private fun formatDuration(seconds: Long): String {
+    val minutes = (seconds + 59) / 60
+    val hours = minutes / 60
+
+    return if (hours > 0) {
+        "${hours}時間${minutes % 60}分"
+    } else {
+        "${minutes}分"
+    }
+}
+
+private fun formatDistance(meters: Int): String {
+    return if (meters >= 1000) {
+        "%.1f km".format(meters / 1000.0)
+    } else {
+        "$meters m"
     }
 }
