@@ -10,3 +10,8 @@ data class Destination(
     val latitude: Double,
     val longitude: Double
 )
+
+data class CurrentLocation(
+    val latitude: Double,
+    val longitude: Double
+)
