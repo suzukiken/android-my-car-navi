@@ -54,6 +54,10 @@ class MainActivity : ComponentActivity() {
 
                 KeyEvent.KEYCODE_PAGE_DOWN ->
                     viewModel.zoomOut()
+
+                KeyEvent.KEYCODE_ENTER,
+                KeyEvent.KEYCODE_DPAD_CENTER ->
+                    viewModel.setDestinationToCenter()
             }
         }
 
