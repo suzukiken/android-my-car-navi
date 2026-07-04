@@ -224,6 +224,9 @@ class MainActivity : ComponentActivity() {
                 KeyEvent.KEYCODE_V,
                 KeyEvent.KEYCODE_VOICE_ASSIST ->
                     startVoiceInput()
+
+                KeyEvent.KEYCODE_P ->
+                    viewModel.toggleParkingSearch()
             }
         }
 

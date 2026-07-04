@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -33,6 +34,7 @@ fun MapScreen(
     val currentLocation by viewModel.currentLocation.collectAsState()
     val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
     val route by viewModel.route.collectAsState()
+    val parkingPlaces by viewModel.parkingPlaces.collectAsState()
 
     var mapLoaded by remember { mutableStateOf(false) }
 
@@ -86,6 +88,20 @@ fun MapScreen(
                     points = r.points,
                     color = Color(0xFF1E88E5),
                     width = 14f
+                )
+            }
+
+            parkingPlaces.forEach { place ->
+                Marker(
+                    state = remember(place) {
+                        MarkerState(
+                            LatLng(place.latitude, place.longitude)
+                        )
+                    },
+                    title = place.name,
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        BitmapDescriptorFactory.HUE_AZURE
+                    )
                 )
             }
         }
