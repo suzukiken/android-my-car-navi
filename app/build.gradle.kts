@@ -25,9 +25,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders["MAPS_API_KEY"] =
-            localProperties.getProperty("MAPS_API_KEY")
-                ?: error("MAPS_API_KEY is not set in local.properties")
+        val mapsApiKey = localProperties.getProperty("MAPS_API_KEY")
+            ?: error("MAPS_API_KEY is not set in local.properties")
+
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKey\"")
     }
 
     buildTypes {
@@ -48,6 +50,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -64,6 +67,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.google.maps.compose)
     implementation(libs.google.play.services.location)
+    implementation(libs.android.maps.utils)
+    implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

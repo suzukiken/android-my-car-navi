@@ -1,10 +1,16 @@
 package com.example.mycarnavi
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class MapViewModel : ViewModel() {
+
+    private val routesApiClient = RoutesApiClient(BuildConfig.MAPS_API_KEY)
 
     private val _camera = MutableStateFlow(
         CameraState(
@@ -26,6 +32,35 @@ class MapViewModel : ViewModel() {
             latitude = camera.latitude,
             longitude = camera.longitude
         )
+        requestRoute()
+    }
+
+    private val _route = MutableStateFlow<RouteInfo?>(null)
+
+    val route: StateFlow<RouteInfo?> = _route
+
+    private fun requestRoute() {
+        val origin = _currentLocation.value
+        val destination = _destination.value
+
+        if (origin == null || destination == null) {
+            _route.value = null
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _route.value = try {
+                routesApiClient.fetchRoute(
+                    originLatitude = origin.latitude,
+                    originLongitude = origin.longitude,
+                    destinationLatitude = destination.latitude,
+                    destinationLongitude = destination.longitude
+                )
+            } catch (e: Exception) {
+                Log.e("MapViewModel", "Failed to fetch route", e)
+                null
+            }
+        }
     }
 
     private val _currentLocation = MutableStateFlow<CurrentLocation?>(null)

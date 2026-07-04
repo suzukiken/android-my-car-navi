@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -12,6 +13,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
@@ -22,6 +24,7 @@ fun MapScreen(
     val destination by viewModel.destination.collectAsState()
     val currentLocation by viewModel.currentLocation.collectAsState()
     val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
+    val route by viewModel.route.collectAsState()
 
     var mapLoaded by remember { mutableStateOf(false) }
 
@@ -68,12 +71,26 @@ fun MapScreen(
                     title = "目的地"
                 )
             }
+
+            route?.let { r ->
+                Polyline(
+                    points = r.points,
+                    color = Color(0xFF1E88E5),
+                    width = 14f
+                )
+            }
         }
 
         Text(
             text = "Zoom ${camera.zoom}\nLat ${camera.latitude}\nLng ${camera.longitude}" +
                     (destination?.let { "\nDest ${it.latitude}, ${it.longitude}" } ?: "") +
-                    (currentLocation?.let { "\nHere ${it.latitude}, ${it.longitude}" } ?: "")
+                    (currentLocation?.let { "\nHere ${it.latitude}, ${it.longitude}" } ?: "") +
+                    (route?.let {
+                        "\nRoute %.1f km / %d min".format(
+                            it.distanceMeters / 1000.0,
+                            it.durationSeconds / 60
+                        )
+                    } ?: "")
         )
     }
 }
