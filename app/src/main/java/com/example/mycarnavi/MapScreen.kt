@@ -9,6 +9,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
@@ -16,8 +19,13 @@ fun MapScreen(
     viewModel: MapViewModel
 ) {
     val camera by viewModel.camera.collectAsState()
+    val destination by viewModel.destination.collectAsState()
+    val currentLocation by viewModel.currentLocation.collectAsState()
+    val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
 
     var mapLoaded by remember { mutableStateOf(false) }
+
+    val destinationMarkerState = remember { MarkerState() }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
@@ -44,13 +52,28 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
+            properties = MapProperties(
+                isMyLocationEnabled = locationPermissionGranted
+            ),
             onMapLoaded = {
                 mapLoaded = true
             }
-        )
+        ) {
+            destination?.let { dest ->
+                destinationMarkerState.position =
+                    LatLng(dest.latitude, dest.longitude)
+
+                Marker(
+                    state = destinationMarkerState,
+                    title = "目的地"
+                )
+            }
+        }
 
         Text(
-            text = "Zoom ${camera.zoom}\nLat ${camera.latitude}\nLng ${camera.longitude}"
+            text = "Zoom ${camera.zoom}\nLat ${camera.latitude}\nLng ${camera.longitude}" +
+                    (destination?.let { "\nDest ${it.latitude}, ${it.longitude}" } ?: "") +
+                    (currentLocation?.let { "\nHere ${it.latitude}, ${it.longitude}" } ?: "")
         )
     }
 }

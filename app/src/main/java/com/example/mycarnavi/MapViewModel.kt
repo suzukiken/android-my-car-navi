@@ -16,6 +16,42 @@ class MapViewModel : ViewModel() {
 
     val camera: StateFlow<CameraState> = _camera
 
+    private val _destination = MutableStateFlow<Destination?>(null)
+
+    val destination: StateFlow<Destination?> = _destination
+
+    fun setDestinationToCenter() {
+        val camera = _camera.value
+        _destination.value = Destination(
+            latitude = camera.latitude,
+            longitude = camera.longitude
+        )
+    }
+
+    private val _currentLocation = MutableStateFlow<CurrentLocation?>(null)
+
+    val currentLocation: StateFlow<CurrentLocation?> = _currentLocation
+
+    private val _locationPermissionGranted = MutableStateFlow(false)
+
+    val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted
+
+    fun setLocationPermissionGranted(granted: Boolean) {
+        _locationPermissionGranted.value = granted
+    }
+
+    fun updateCurrentLocation(latitude: Double, longitude: Double) {
+        _currentLocation.value = CurrentLocation(latitude, longitude)
+    }
+
+    fun centerOnCurrentLocation() {
+        val location = _currentLocation.value ?: return
+        _camera.value = _camera.value.copy(
+            latitude = location.latitude,
+            longitude = location.longitude
+        )
+    }
+
     fun moveWest() {
         move(-200.0, 0.0)
     }
