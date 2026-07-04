@@ -9,6 +9,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -19,6 +20,8 @@ fun MapScreen(
 ) {
     val camera by viewModel.camera.collectAsState()
     val destination by viewModel.destination.collectAsState()
+    val currentLocation by viewModel.currentLocation.collectAsState()
+    val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
 
     var mapLoaded by remember { mutableStateOf(false) }
 
@@ -49,6 +52,9 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
+            properties = MapProperties(
+                isMyLocationEnabled = locationPermissionGranted
+            ),
             onMapLoaded = {
                 mapLoaded = true
             }
@@ -66,7 +72,8 @@ fun MapScreen(
 
         Text(
             text = "Zoom ${camera.zoom}\nLat ${camera.latitude}\nLng ${camera.longitude}" +
-                    (destination?.let { "\nDest ${it.latitude}, ${it.longitude}" } ?: "")
+                    (destination?.let { "\nDest ${it.latitude}, ${it.longitude}" } ?: "") +
+                    (currentLocation?.let { "\nHere ${it.latitude}, ${it.longitude}" } ?: "")
         )
     }
 }
