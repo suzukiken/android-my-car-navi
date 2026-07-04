@@ -28,9 +28,18 @@ class MapViewModel : ViewModel() {
 
     fun setDestinationToCenter() {
         val camera = _camera.value
+        setDestination(camera.latitude, camera.longitude)
+    }
+
+    fun setDestination(latitude: Double, longitude: Double) {
         _destination.value = Destination(
-            latitude = camera.latitude,
-            longitude = camera.longitude
+            latitude = latitude,
+            longitude = longitude
+        )
+        // 目的地を画面中心に表示する
+        _camera.value = _camera.value.copy(
+            latitude = latitude,
+            longitude = longitude
         )
         requestRoute()
     }
