@@ -12,6 +12,8 @@ class MapViewModel : ViewModel() {
 
     private val routesApiClient = RoutesApiClient(BuildConfig.MAPS_API_KEY)
 
+    private val placesApiClient = PlacesApiClient(BuildConfig.MAPS_API_KEY)
+
     private val _camera = MutableStateFlow(
         CameraState(
             latitude = 35.681236,
@@ -47,6 +49,32 @@ class MapViewModel : ViewModel() {
     private val _route = MutableStateFlow<RouteInfo?>(null)
 
     val route: StateFlow<RouteInfo?> = _route
+
+    private val _parkingPlaces = MutableStateFlow<List<ParkingPlace>>(emptyList())
+
+    val parkingPlaces: StateFlow<List<ParkingPlace>> = _parkingPlaces
+
+    /** 駐車場マーカーの表示切り替え。非表示なら検索して表示、表示中なら消す */
+    fun toggleParkingSearch() {
+        if (_parkingPlaces.value.isNotEmpty()) {
+            _parkingPlaces.value = emptyList()
+            return
+        }
+
+        val camera = _camera.value
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _parkingPlaces.value = try {
+                placesApiClient.searchParking(
+                    centerLatitude = camera.latitude,
+                    centerLongitude = camera.longitude
+                )
+            } catch (e: Exception) {
+                Log.e("MapViewModel", "Failed to search parking", e)
+                emptyList()
+            }
+        }
+    }
 
     private fun requestRoute() {
         val origin = _currentLocation.value
