@@ -92,17 +92,19 @@ fun MapScreen(
             }
 
             parkingPlaces.forEach { place ->
-                Marker(
-                    state = remember(place) {
-                        MarkerState(
-                            LatLng(place.latitude, place.longitude)
+                key(place.latitude, place.longitude) {
+                    Marker(
+                        state = remember {
+                            MarkerState(
+                                LatLng(place.latitude, place.longitude)
+                            )
+                        },
+                        title = place.name,
+                        icon = BitmapDescriptorFactory.defaultMarker(
+                            BitmapDescriptorFactory.HUE_AZURE
                         )
-                    },
-                    title = place.name,
-                    icon = BitmapDescriptorFactory.defaultMarker(
-                        BitmapDescriptorFactory.HUE_AZURE
                     )
-                )
+                }
             }
         }
 
