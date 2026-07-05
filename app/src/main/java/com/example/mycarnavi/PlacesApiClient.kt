@@ -67,12 +67,16 @@ class PlacesApiClient(private val apiKey: String) {
                 val location = place.optJSONObject("location")
                     ?: return@mapNotNull null
 
+                val lat = location.optDouble("latitude", Double.NaN)
+                val lng = location.optDouble("longitude", Double.NaN)
+                if (lat.isNaN() || lng.isNaN()) return@mapNotNull null
+
                 ParkingPlace(
                     name = place.optJSONObject("displayName")
                         ?.optString("text")
                         ?: "駐車場",
-                    latitude = location.getDouble("latitude"),
-                    longitude = location.getDouble("longitude")
+                    latitude = lat,
+                    longitude = lng
                 )
             }
         }
