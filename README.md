@@ -2,7 +2,7 @@
 
 車載向けナビゲーション Android アプリ（開発用リポジトリ: `android-my-car-navi`）。
 
-[![Build Status](https://img.shields.io/badge/build-unknown-lightgrey)](https://github.com/<owner>/<repo>/actions)
+<!-- TODO: GitHub Actions ワークフロー追加後に Build Status バッジを設定してください -->
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 目次
